@@ -193,7 +193,7 @@ def make_html(rows, html_path):
       flex-wrap: wrap;
       justify-content: flex-end;
     }}
-    button, select, .file-button {{
+    button, select, .file-button, .url-input {{
       height: 34px;
       border: 1px solid #c6d0d8;
       border-radius: 7px;
@@ -202,6 +202,11 @@ def make_html(rows, html_path):
       padding: 0 10px;
       font-size: 13px;
       cursor: pointer;
+    }}
+    .url-input {{
+      min-width: 310px;
+      max-width: 460px;
+      cursor: text;
     }}
     .file-button {{
       display: inline-flex;
@@ -355,6 +360,8 @@ def make_html(rows, html_path):
       </label>
       <select id="folderFileSelect" class="folder-select" title="Files in codex_on_bed_project"></select>
       <button id="openFolderFileBtn" type="button">Open file</button>
+      <input id="dropboxCsvUrl" class="url-input" type="url" title="Dropbox CSV share link" aria-label="Dropbox CSV link" placeholder="Dropbox CSV link" value="https://www.dropbox.com/scl/fi/4t0uem8um2pimwn9jh9gc/_jb_debug_inference_20260617_170418.csv?rlkey=52qgf7njsm6gt78iq6hhfp794&dl=0">
+      <button id="loadDropboxBtn" type="button">Load Dropbox</button>
       <select id="followMode" title="Slider behavior">
         <option value="center">slider centers view</option>
         <option value="cursor">slider moves cursor only</option>
@@ -404,6 +411,8 @@ def make_html(rows, html_path):
     const datasetInfo = document.getElementById("datasetInfo");
     const statePercentages = document.getElementById("statePercentages");
     const csvFile = document.getElementById("csvFile");
+    const dropboxCsvUrl = document.getElementById("dropboxCsvUrl");
+    const loadDropboxBtn = document.getElementById("loadDropboxBtn");
     const folderFileSelect = document.getElementById("folderFileSelect");
     const openFolderFileBtn = document.getElementById("openFolderFileBtn");
     const followMode = document.getElementById("followMode");
@@ -624,6 +633,49 @@ def make_html(rows, html_path):
         setDataset(nextRows, fileName);
       }} catch (error) {{
         readout.textContent = `CSV load error: ${{error.message}}`;
+      }}
+    }}
+
+    function directCsvUrl(rawUrl) {{
+      const trimmed = rawUrl.trim();
+      if (!trimmed) throw new Error("Dropbox link is empty");
+      const url = new URL(trimmed);
+      if (url.hostname.includes("dropbox.com")) {{
+        url.hostname = "dl.dropboxusercontent.com";
+        url.searchParams.set("dl", "1");
+        url.searchParams.delete("raw");
+      }}
+      return url.toString();
+    }}
+
+    function csvNameFromUrl(rawUrl) {{
+      try {{
+        const url = new URL(rawUrl);
+        const name = decodeURIComponent(url.pathname.split("/").filter(Boolean).pop() || "remote.csv");
+        return name.toLowerCase().endsWith(".csv") ? name : "remote.csv";
+      }} catch {{
+        return "remote.csv";
+      }}
+    }}
+
+    async function loadCsvFromUrl(rawUrl) {{
+      const csvUrl = directCsvUrl(rawUrl);
+      const csvName = csvNameFromUrl(csvUrl);
+      readout.textContent = `Loading Dropbox CSV: ${{csvName}} ...`;
+      const response = await fetch(csvUrl, {{ cache: "no-store" }});
+      if (!response.ok) throw new Error(`HTTP ${{response.status}} from CSV URL`);
+      const text = await response.text();
+      if (/^\\s*</.test(text.slice(0, 200))) {{
+        throw new Error("URL returned HTML, not CSV. Check Dropbox direct download or access permission.");
+      }}
+      if (!text.includes("\\n")) {{
+        throw new Error(`URL did not return CSV rows: ${{text.slice(0, 90)}}`);
+      }}
+      try {{
+        const nextRows = rowsFromCsv(text);
+        setDataset(nextRows, csvName);
+      }} catch (error) {{
+        throw new Error(`${{error.message}}. Dropbox may block browser CSV reads; use Browse CSV or add the CSV to this repo.`);
       }}
     }}
 
@@ -959,6 +1011,17 @@ def make_html(rows, html_path):
 
     openFolderFileBtn.addEventListener("click", () => {{
       openWorkingFile(folderFileSelect.value);
+    }});
+
+    loadDropboxBtn.addEventListener("click", async () => {{
+      try {{
+        await loadCsvFromUrl(dropboxCsvUrl.value);
+      }} catch (error) {{
+        const hint = error.message === "Failed to fetch"
+          ? "Failed to fetch. Dropbox may block browser CSV reads; use Browse CSV or add the CSV to this repo."
+          : error.message;
+        readout.textContent = `Dropbox CSV load error: ${{hint}}`;
+      }}
     }});
 
     folderFileSelect.addEventListener("change", () => {{
