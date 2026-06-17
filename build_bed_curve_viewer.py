@@ -516,8 +516,8 @@ def make_html(rows, html_path):
         }} else if (ch === "," && !inQuotes) {{
           row.push(cell);
           cell = "";
-        }} else if ((ch === "\\\\n" || ch === "\\\\r") && !inQuotes) {{
-          if (ch === "\\\\r" && next === "\\\\n") i += 1;
+        }} else if ((ch === "\\n" || ch === "\\r") && !inQuotes) {{
+          if (ch === "\\r" && next === "\\n") i += 1;
           row.push(cell);
           if (row.some(value => value.trim() !== "")) table.push(row);
           row = [];
