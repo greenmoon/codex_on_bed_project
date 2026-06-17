@@ -349,7 +349,7 @@ def make_html(rows, html_path):
 <body>
   <header>
     <div>
-      <h1>BED debug inference curve viewer v03</h1>
+      <h1>BED debug inference curve viewer pending v04</h1>
       <div id="datasetInfo" class="sub">{title} · {len(rows)} rows · fn {min_fn} to {max_fn}</div>
       <div class="local-csv-note">Browse CSV reads a local CSV only in this browser session; it is not uploaded to GitHub and other people cannot see it.</div>
     </div>
