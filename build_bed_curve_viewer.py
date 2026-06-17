@@ -309,6 +309,15 @@ def make_html(rows, html_path):
       border-radius: 2px;
       display: inline-block;
     }}
+    .low-cloud-dot {{
+      width: 13px;
+      height: 13px;
+      background: #8e44ad;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 1px #5e2b75;
+      border-radius: 50%;
+      display: inline-block;
+    }}
     @media (max-width: 760px) {{
       header {{ grid-template-columns: 1fr; }}
       .toolbar {{ justify-content: flex-start; }}
@@ -359,6 +368,7 @@ def make_html(rows, html_path):
       <span class="item"><span class="swatch" style="background:#2677bf"></span>sum(x1..x6)</span>
       <span class="item"><span class="triangle"></span>ALT entry point</span>
       <span class="item"><span class="keep-square"></span>KEEP IBD state</span>
+      <span class="item"><span class="low-cloud-dot"></span>NBD sum &lt; 10</span>
       <span class="item"><span class="swatch" style="background:#d6a500;border-top:1px dashed #d6a500"></span>YELLOW on ALT</span>
       <span class="item"><span class="swatch" style="background:#2e9f51;border-top:1px dashed #2e9f51"></span>GREEN on IBD</span>
       <span class="item"><span class="box"></span>current_name != final_name</span>
@@ -396,6 +406,8 @@ def make_html(rows, html_path):
       axis: "#65727a",
       guideYellow: "#d6a500",
       guideGreen: "#2e9f51",
+      lowCloud: "#8e44ad",
+      lowCloudStroke: "#5e2b75",
       shade: "rgba(111,166,201,.18)",
       cursor: "rgba(24,35,43,.62)"
     }};
@@ -796,6 +808,25 @@ def make_html(rows, html_path):
       }}
     }}
 
+    function drawLowCloudNbdMarkers(L, data) {{
+      ctx.fillStyle = colors.lowCloud;
+      ctx.strokeStyle = colors.lowCloudStroke;
+      ctx.lineWidth = 1.4;
+      const y = stateToScreen("NBD", L);
+      let lastX = -Infinity;
+      for (const row of data) {{
+        const lowCloudNbd = row.final_name === "NBD" && row.xsum < 10;
+        if (!lowCloudNbd) continue;
+        const x = xToScreen(row.fn, L);
+        if (x - lastX < 10) continue;
+        ctx.beginPath();
+        ctx.arc(x, y, 4.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        lastX = x;
+      }}
+    }}
+
     function drawCursor(L) {{
       const row = nearestRow(cursorFn);
       const x = xToScreen(row.fn, L);
@@ -862,6 +893,7 @@ def make_html(rows, html_path):
       drawStepLine(L, data, "current_name", colors.current_name);
       drawStepLine(L, data, "final_name", colors.final_name);
       drawKeepIbdMarkers(L, data);
+      drawLowCloudNbdMarkers(L, data);
       drawAltEntryMarkers(L, data);
       drawCurve(L, data);
       drawCursor(L);
