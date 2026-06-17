@@ -115,10 +115,17 @@ def make_overview_svg(rows, svg_path):
 
 def make_html(rows, html_path):
     data_json = json.dumps(rows, separators=(",", ":"))
+    publish_suffixes = {".csv", ".html", ".py", ".svg"}
     working_files = sorted(
         path.name
         for path in html_path.parent.iterdir()
-        if path.is_file() and not path.name.startswith(".")
+        if (
+            path.is_file()
+            and not path.name.startswith(".")
+            and path.suffix.lower() in publish_suffixes
+            and not path.name.startswith("x_")
+            and path.name != "create_github_homepage_docx.py"
+        )
     )
     working_files_json = json.dumps(working_files, separators=(",", ":"))
     min_fn = rows[0]["fn"]
@@ -173,6 +180,12 @@ def make_html(rows, html_path):
       margin-top: 4px;
       color: var(--muted);
       font-size: 13px;
+    }}
+    .local-csv-note {{
+      margin-top: 3px;
+      color: #6b7280;
+      font-size: 12px;
+      line-height: 1.35;
     }}
     .toolbar {{
       display: flex;
@@ -331,8 +344,9 @@ def make_html(rows, html_path):
 <body>
   <header>
     <div>
-      <h1>BED debug inference curve viewer v01</h1>
+      <h1>BED debug inference curve viewer v03</h1>
       <div id="datasetInfo" class="sub">{title} · {len(rows)} rows · fn {min_fn} to {max_fn}</div>
+      <div class="local-csv-note">Browse CSV reads a local CSV only in this browser session; it is not uploaded to GitHub and other people cannot see it.</div>
     </div>
     <div class="toolbar">
       <label class="file-button" title="Select another BED debug CSV">
