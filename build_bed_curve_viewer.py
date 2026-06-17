@@ -629,6 +629,9 @@ def make_html(rows, html_path):
         const response = await fetch(fileUrl(fileName));
         if (!response.ok) throw new Error(`HTTP ${{response.status}}`);
         const text = await response.text();
+        if (/^\\s*</.test(text.slice(0, 200))) {{
+          throw new Error("URL returned HTML, not CSV. GitHub Pages may need .nojekyll for underscore CSV files.");
+        }}
         const nextRows = rowsFromCsv(text);
         setDataset(nextRows, fileName);
       }} catch (error) {{
