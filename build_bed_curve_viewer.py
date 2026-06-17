@@ -349,17 +349,17 @@ def make_html(rows, html_path):
 <body>
   <header>
     <div>
-      <h1>BED debug inference curve viewer pending v04</h1>
+      <h1>BED debug inference curve viewer v05</h1>
       <div id="datasetInfo" class="sub">{title} · {len(rows)} rows · fn {min_fn} to {max_fn}</div>
-      <div class="local-csv-note">Browse CSV reads a local CSV only in this browser session; it is not uploaded to GitHub and other people cannot see it.</div>
+      <div class="local-csv-note">Browse Local CSV reads a local CSV only in this browser session; it is not uploaded to GitHub and other people cannot see it.</div>
     </div>
     <div class="toolbar">
       <label class="file-button" title="Select another BED debug CSV">
-        Browse CSV
+        Browse Local CSV
         <input id="csvFile" type="file" accept=".csv,text/csv">
       </label>
       <select id="folderFileSelect" class="folder-select" title="Files in codex_on_bed_project"></select>
-      <button id="openFolderFileBtn" type="button">Open file</button>
+      <button id="openFolderFileBtn" type="button">Open Repo File</button>
       <input id="dropboxCsvUrl" class="url-input" type="url" title="Dropbox CSV share link" aria-label="Dropbox CSV link" placeholder="Dropbox CSV link" value="https://www.dropbox.com/scl/fi/4t0uem8um2pimwn9jh9gc/_jb_debug_inference_20260617_170418.csv?rlkey=52qgf7njsm6gt78iq6hhfp794&dl=0">
       <button id="loadDropboxBtn" type="button">Load Dropbox</button>
       <select id="followMode" title="Slider behavior">
@@ -678,7 +678,7 @@ def make_html(rows, html_path):
         const nextRows = rowsFromCsv(text);
         setDataset(nextRows, csvName);
       }} catch (error) {{
-        throw new Error(`${{error.message}}. Dropbox may block browser CSV reads; use Browse CSV or add the CSV to this repo.`);
+        throw new Error(`${{error.message}}. Dropbox may block browser CSV reads; use Browse Local CSV or add the CSV to this repo.`);
       }}
     }}
 
@@ -1021,7 +1021,7 @@ def make_html(rows, html_path):
         await loadCsvFromUrl(dropboxCsvUrl.value);
       }} catch (error) {{
         const hint = error.message === "Failed to fetch"
-          ? "Failed to fetch. Dropbox may block browser CSV reads; use Browse CSV or add the CSV to this repo."
+          ? "Failed to fetch. Dropbox may block browser CSV reads; use Browse Local CSV or add the CSV to this repo."
           : error.message;
         readout.textContent = `Dropbox CSV load error: ${{hint}}`;
       }}
