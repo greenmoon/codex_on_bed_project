@@ -115,7 +115,11 @@ def make_overview_svg(rows, svg_path):
 
 def make_html(rows, html_path):
     data_json = json.dumps(rows, separators=(",", ":"))
-    working_files = sorted(path.name for path in html_path.parent.iterdir() if path.is_file())
+    working_files = sorted(
+        path.name
+        for path in html_path.parent.iterdir()
+        if path.is_file() and not path.name.startswith(".")
+    )
     working_files_json = json.dumps(working_files, separators=(",", ":"))
     min_fn = rows[0]["fn"]
     max_fn = rows[-1]["fn"]
@@ -318,7 +322,7 @@ def make_html(rows, html_path):
 <body>
   <header>
     <div>
-      <h1>BED debug inference curve viewer</h1>
+      <h1>BED debug inference curve viewer v01</h1>
       <div id="datasetInfo" class="sub">{title} · {len(rows)} rows · fn {min_fn} to {max_fn}</div>
     </div>
     <div class="toolbar">
