@@ -351,17 +351,17 @@ def make_html(rows, html_path):
     <div>
       <h1>BED debug inference curve viewer v05</h1>
       <div id="datasetInfo" class="sub">{title} · {len(rows)} rows · fn {min_fn} to {max_fn}</div>
-      <div class="local-csv-note">Browse Local CSV reads a local CSV only in this browser session; it is not uploaded to GitHub and other people cannot see it.</div>
+      <div class="local-csv-note">1 Local PC reads a CSV only in this browser session; 2 Repo Project loads CSV files committed to this GitHub project; 3 Dropbox Link tries to read a shared CSV link.</div>
     </div>
     <div class="toolbar">
       <label class="file-button" title="Select another BED debug CSV">
-        Browse Local CSV
+        1 Local PC
         <input id="csvFile" type="file" accept=".csv,text/csv">
       </label>
-      <select id="folderFileSelect" class="folder-select" title="Files in codex_on_bed_project"></select>
-      <button id="openFolderFileBtn" type="button">Open Repo File</button>
+      <select id="folderFileSelect" class="folder-select" title="Files in codex_on_bed_project_linuxBased"></select>
+      <button id="openFolderFileBtn" type="button">2 Repo Project</button>
       <input id="dropboxCsvUrl" class="url-input" type="url" title="Dropbox CSV share link" aria-label="Dropbox CSV link" placeholder="Dropbox CSV link" value="https://www.dropbox.com/scl/fi/4t0uem8um2pimwn9jh9gc/_jb_debug_inference_20260617_170418.csv?rlkey=52qgf7njsm6gt78iq6hhfp794&dl=0">
-      <button id="loadDropboxBtn" type="button">Load Dropbox</button>
+      <button id="loadDropboxBtn" type="button">3 Dropbox Link</button>
       <select id="followMode" title="Slider behavior">
         <option value="center">slider centers view</option>
         <option value="cursor">slider moves cursor only</option>
@@ -678,7 +678,7 @@ def make_html(rows, html_path):
         const nextRows = rowsFromCsv(text);
         setDataset(nextRows, csvName);
       }} catch (error) {{
-        throw new Error(`${{error.message}}. Dropbox may block browser CSV reads; use Browse Local CSV or add the CSV to this repo.`);
+        throw new Error(`${{error.message}}. Dropbox may block browser CSV reads; use 1 Local PC or add the CSV to this repo and use 2 Repo Project.`);
       }}
     }}
 
@@ -1021,7 +1021,7 @@ def make_html(rows, html_path):
         await loadCsvFromUrl(dropboxCsvUrl.value);
       }} catch (error) {{
         const hint = error.message === "Failed to fetch"
-          ? "Failed to fetch. Dropbox may block browser CSV reads; use Browse Local CSV or add the CSV to this repo."
+          ? "Failed to fetch. Dropbox may block browser CSV reads; use 1 Local PC or add the CSV to this repo and use 2 Repo Project."
           : error.message;
         readout.textContent = `Dropbox CSV load error: ${{hint}}`;
       }}
